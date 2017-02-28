@@ -1,6 +1,7 @@
 package com.github.deckyfx.preferencesmanager;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import java.util.HashMap;
@@ -28,7 +29,7 @@ public class PreferencesManager {
     public Preferences add(String name) {
         Preferences preferences = new Preferences(this.mContext, this.getName(name));
         preferences.refresh();
-        this.add(this.getName(this.getName(name)), preferences);
+        this.add(this.getName(name), preferences);
         return preferences;
     }
 
@@ -43,7 +44,8 @@ public class PreferencesManager {
         if (name.length() == 0) {
             name = DEFAULT_SHARED_PREFERENCES_NAME;
         }
-        Preferences pref = this.mPreferences.get(this.getName(name));
+        name     = this.getName(name);
+        Preferences pref = this.mPreferences.get(name);
         pref.refresh();
         return pref;
     }
@@ -53,7 +55,7 @@ public class PreferencesManager {
     }
 
     public String getName(String name){
-        return this.mContext.getPackageName() + name;
+        return this.mContext.getPackageName() + "." + name;
     }
 
     public class Preferences {
@@ -81,8 +83,7 @@ public class PreferencesManager {
 
         public void loadDefaultValue(int resource) {
             PreferenceManager.setDefaultValues(this.mContext, resource, true);
-            android.content.SharedPreferences defaultpref = PreferenceManager.getDefaultSharedPreferences(this.mContext);
-            Map<String, ?> allPreferences = defaultpref.getAll();
+            Map<String, ?> allPreferences = this.mPreferences.getAll();
             for (Map.Entry<String, ?> entry : allPreferences.entrySet()) {
                 String type = entry.getValue().getClass().getName();
                 this.set(entry.getKey(), entry.getValue());
