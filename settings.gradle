@@ -1,1 +1,1 @@
-include ':app', ':preferencesmanager'
+include ':app'
