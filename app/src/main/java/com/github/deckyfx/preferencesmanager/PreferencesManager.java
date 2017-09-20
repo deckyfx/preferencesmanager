@@ -148,6 +148,18 @@ public class PreferencesManager {
             return this.mPreferences.getStringSet(name, null);
         }
 
+        public boolean contains(String name){
+            return this.mPreferences.contains(name);
+        }
+
+        public void registerOnSharedPreferenceChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener){
+            this.mPreferences.registerOnSharedPreferenceChangeListener(listener);
+        }
+
+        public void unregisterOnSharedPreferenceChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener){
+            this.mPreferences.unregisterOnSharedPreferenceChangeListener(listener);
+        }
+
         public void clear(String key) {
             this.mEditor.remove(key);
             this.mEditor.commit();
