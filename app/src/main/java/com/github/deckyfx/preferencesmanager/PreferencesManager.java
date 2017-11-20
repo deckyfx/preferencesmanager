@@ -46,7 +46,9 @@ public class PreferencesManager {
         }
         name     = this.getName(name);
         Preferences pref = this.mPreferences.get(name);
-        pref.refresh();
+        if (pref != null) {
+            pref.refresh();
+        }
         return pref;
     }
 
