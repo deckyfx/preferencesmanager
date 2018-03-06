@@ -72,7 +72,7 @@ public class PreferencesManager {
         }
 
         public void refresh() {
-            this.mPreferences = this.mContext.getSharedPreferences(this.mContext.getPackageName() + this.name, Context.MODE_PRIVATE);
+            this.mPreferences = this.mContext.getSharedPreferences(this.getFullName(), Context.MODE_PRIVATE);
         }
 
         public void setPreferences(android.content.SharedPreferences preferences) {
@@ -83,8 +83,16 @@ public class PreferencesManager {
             this.name = name;
         }
 
+        public String getName() {
+            return this.name;
+        }
+
+        public String getFullName() {
+            return this.mContext.getPackageName() + this.name;
+        }
+
         public void loadDefaultValue(int resource) {
-            PreferenceManager.setDefaultValues(this.mContext, (this.mContext.getPackageName() + this.name), Context.MODE_PRIVATE, resource, true);
+            PreferenceManager.setDefaultValues(this.mContext, this.getFullName(), Context.MODE_PRIVATE, resource, true);
             this.refresh();
         }
 
