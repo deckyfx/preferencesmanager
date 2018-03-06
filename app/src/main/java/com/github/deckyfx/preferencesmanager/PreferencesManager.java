@@ -84,12 +84,8 @@ public class PreferencesManager {
         }
 
         public void loadDefaultValue(int resource) {
-            PreferenceManager.setDefaultValues(this.mContext, resource, true);
-            Map<String, ?> allPreferences = this.mPreferences.getAll();
-            for (Map.Entry<String, ?> entry : allPreferences.entrySet()) {
-                String type = entry.getValue().getClass().getName();
-                this.set(entry.getKey(), entry.getValue());
-            }
+            PreferenceManager.setDefaultValues(this.mContext, (this.mContext.getPackageName() + this.name), Context.MODE_PRIVATE, resource, true);
+            this.refresh();
         }
 
         public void set(String name, Object value){

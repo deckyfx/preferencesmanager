@@ -9,12 +9,12 @@ def groupName = group
 def artifactName = 'preferencesmanager'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 23
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
 
@@ -42,19 +42,10 @@ android {
 //ext.INCREASE_VERSION_CODE_WHEN_RUN_TASK = ""
 //apply from: 'https://raw.githubusercontent.com/deckyfx/AndroidTemplate/master/automatic-versioning.gradle'
 
-// Automatic sqlite management
-//apply from: 'https://raw.githubusercontent.com/deckyfx/gdgen/master/gdgen.gradle'
-
 configurations {
     doc {
         transitive false
     }
-}
-
-dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
-    // Support Libraries
 }
 
 // build a jar with source files
@@ -88,4 +79,13 @@ android.libraryVariants.all { variant ->
     task.dependsOn variant.javaCompile
     task.from variant.javaCompile.destinationDir
     artifacts.add('archives', task);
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // NOTE: test libraries
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 }
