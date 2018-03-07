@@ -3,6 +3,7 @@ package com.github.deckyfx.preferencesmanager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,37 +18,27 @@ public class PreferencesManager {
     private HashMap<String, Preferences> mPreferences;
 
     public PreferencesManager(Context context) {
-        this.mContext = context;
-        android.content.SharedPreferences defaultPref = PreferenceManager.getDefaultSharedPreferences(this.mContext);
-        this.mPreferences = new HashMap<String, Preferences>();
-
-        Preferences defaultPreference = new Preferences(this.mContext, this.getName(DEFAULT_SHARED_PREFERENCES_NAME));
-        defaultPreference.setPreferences(defaultPref);
-        this.add(this.getName(DEFAULT_SHARED_PREFERENCES_NAME), defaultPreference);
+        this.mContext       = context;
+        this.mPreferences   = new HashMap<String, Preferences>();
+        this.add(DEFAULT_SHARED_PREFERENCES_NAME);
     }
 
     public Preferences add(String name) {
-        Preferences preferences = new Preferences(this.mContext, this.getName(name));
+        Preferences preferences = new Preferences(this.mContext, name);
+        this.mPreferences.put(name, preferences);
         preferences.refresh();
-        this.add(this.getName(name), preferences);
         return preferences;
     }
 
-    public void add(String name, Preferences pref) {
-        this.mPreferences.put(name, pref);
-    }
-
-    public Preferences get(String name){
-        if (name == null ) {
-            name = "";
-        }
-        if (name.length() == 0) {
+    public Preferences get(String name) {
+        if (TextUtils.isEmpty(name)) {
             name = DEFAULT_SHARED_PREFERENCES_NAME;
         }
-        name     = this.getName(name);
         Preferences pref = this.mPreferences.get(name);
         if (pref != null) {
             pref.refresh();
+        } else {
+            pref = this.add(name);
         }
         return pref;
     }
@@ -56,31 +47,29 @@ public class PreferencesManager {
         return this.get(null);
     }
 
-    public String getName(String name){
-        return this.mContext.getPackageName() + "." + name;
-    }
-
     public class Preferences {
         private Context mContext;
-        private android.content.SharedPreferences mPreferences;
-        private android.content.SharedPreferences.Editor mEditor;
+        private SharedPreferences mPreferences;
+        private SharedPreferences.Editor mEditor;
         public String name;
+        private boolean mIsDefault;
 
         public Preferences(Context context, String name){
-            this.mContext = context;
-            this.name = name;
+            this.mContext   = context;
+            this.name       = name;
+            if (this.name.equals(DEFAULT_SHARED_PREFERENCES_NAME)) {
+                this.mIsDefault = true;
+            } else {
+                this.name   = this.mContext.getPackageName() + "." + name;
+            }
         }
 
         public void refresh() {
-            this.mPreferences = this.mContext.getSharedPreferences(this.getFullName(), Context.MODE_PRIVATE);
-        }
-
-        public void setPreferences(android.content.SharedPreferences preferences) {
-            this.mPreferences = preferences;
-        }
-
-        public void setName(String name) {
-            this.name = name;
+            if (this.mIsDefault) {
+                this.mPreferences = android.preference.PreferenceManager.getDefaultSharedPreferences(this.mContext);
+            } else {
+                this.mPreferences = this.mContext.getSharedPreferences(this.getFullName(), Context.MODE_PRIVATE);
+            }
         }
 
         public String getName() {
@@ -88,15 +77,23 @@ public class PreferencesManager {
         }
 
         public String getFullName() {
-            return this.mContext.getPackageName() + this.name;
+            if (this.name.equals(DEFAULT_SHARED_PREFERENCES_NAME)) {
+                return this.mContext.getPackageName() + this.name;
+            } else {
+                return DEFAULT_SHARED_PREFERENCES_NAME;
+            }
         }
 
         public void loadDefaultValue(int resource) {
-            PreferenceManager.setDefaultValues(this.mContext, this.getFullName(), Context.MODE_PRIVATE, resource, true);
+            if (this.mIsDefault) {
+                PreferenceManager.setDefaultValues(this.mContext, resource, true);
+            } else {
+                PreferenceManager.setDefaultValues(this.mContext, this.getFullName(), Context.MODE_PRIVATE, resource, true);
+            }
             this.refresh();
         }
 
-        public void set(String name, Object value){
+        public void set(String prefkey, Object value){
             if (value == null) {
                 value = "";
             }
@@ -104,19 +101,19 @@ public class PreferencesManager {
             this.mEditor = this.mPreferences.edit();
             if (type.equals(String.class.getCanonicalName())) {
                 String v = (String) value;
-                this.mEditor.putString(name, v);
+                this.mEditor.putString(prefkey, v);
             } else if (type.equals(Boolean.class.getCanonicalName())) {
                 Boolean v = (Boolean) value;
-                this.mEditor.putBoolean(name, v);
+                this.mEditor.putBoolean(prefkey, v);
             } else if (type.equals(Float.class.getCanonicalName())) {
                 Float v = (Float) value;
-                this.mEditor.putFloat(name, v);
+                this.mEditor.putFloat(prefkey, v);
             } else if (type.equals(Integer.class.getCanonicalName())) {
                 int v = (Integer) value;
-                this.mEditor.putInt(name, v);
+                this.mEditor.putInt(prefkey, v);
             } else if (type.equals(Long.class.getCanonicalName())) {
                 long v = (Long) value;
-                this.mEditor.putLong(name, v);
+                this.mEditor.putLong(prefkey, v);
             }
             this.mEditor.commit();
             this.mEditor.apply();
