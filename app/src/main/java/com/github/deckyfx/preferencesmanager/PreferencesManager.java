@@ -14,61 +14,57 @@ import java.util.Set;
  */
 public class PreferencesManager {
     private static final String DEFAULT_SHARED_PREFERENCES_NAME         = "_preferences";
-    private Context mContext;
     private HashMap<String, Preferences> mPreferences;
 
     public PreferencesManager(Context context) {
-        this.mContext       = context;
         this.mPreferences   = new HashMap<String, Preferences>();
-        this.add(DEFAULT_SHARED_PREFERENCES_NAME);
+        this.add(context, DEFAULT_SHARED_PREFERENCES_NAME);
     }
 
-    public Preferences add(String name) {
-        Preferences preferences = new Preferences(this.mContext, name);
+    public Preferences add(Context context, String name) {
+        Preferences preferences = new Preferences(context, name);
         this.mPreferences.put(name, preferences);
-        preferences.refresh();
+        preferences.refresh(context);
         return preferences;
     }
 
-    public Preferences get(String name) {
+    public Preferences get(Context context, String name) {
         if (TextUtils.isEmpty(name)) {
             name = DEFAULT_SHARED_PREFERENCES_NAME;
         }
         Preferences pref = this.mPreferences.get(name);
         if (pref != null) {
-            pref.refresh();
+            pref.refresh(context);
         } else {
-            pref = this.add(name);
+            pref = this.add(context, name);
         }
         return pref;
     }
 
-    public Preferences getDefault(){
-        return this.get(null);
+    public Preferences getDefault(Context context){
+        return this.get(context, null);
     }
 
     public class Preferences {
-        private Context mContext;
         private SharedPreferences mPreferences;
         private SharedPreferences.Editor mEditor;
         public String name;
         private boolean mIsDefault;
 
         public Preferences(Context context, String name){
-            this.mContext   = context;
             this.name       = name;
             if (this.name.equals(DEFAULT_SHARED_PREFERENCES_NAME)) {
                 this.mIsDefault = true;
             } else {
-                this.name   = this.mContext.getPackageName() + "." + name;
+                this.name   = context.getPackageName() + "." + name;
             }
         }
 
-        public void refresh() {
+        public void refresh(Context context) {
             if (this.mIsDefault) {
-                this.mPreferences = android.preference.PreferenceManager.getDefaultSharedPreferences(this.mContext);
+                this.mPreferences = android.preference.PreferenceManager.getDefaultSharedPreferences(context);
             } else {
-                this.mPreferences = this.mContext.getSharedPreferences(this.getFullName(), Context.MODE_PRIVATE);
+                this.mPreferences = context.getSharedPreferences(this.getFullName(context), Context.MODE_PRIVATE);
             }
         }
 
@@ -76,21 +72,21 @@ public class PreferencesManager {
             return this.name;
         }
 
-        public String getFullName() {
+        public String getFullName(Context context) {
             if (this.name.equals(DEFAULT_SHARED_PREFERENCES_NAME)) {
-                return this.mContext.getPackageName() + this.name;
+                return context.getPackageName() + this.name;
             } else {
                 return DEFAULT_SHARED_PREFERENCES_NAME;
             }
         }
 
-        public void loadDefaultValue(int resource) {
+        public void loadDefaultValue(Context context, int resource) {
             if (this.mIsDefault) {
-                PreferenceManager.setDefaultValues(this.mContext, resource, true);
+                PreferenceManager.setDefaultValues(context, resource, true);
             } else {
-                PreferenceManager.setDefaultValues(this.mContext, this.getFullName(), Context.MODE_PRIVATE, resource, true);
+                PreferenceManager.setDefaultValues(context, this.getFullName(context), Context.MODE_PRIVATE, resource, true);
             }
-            this.refresh();
+            this.refresh(context);
         }
 
         public void set(String prefkey, Object value){

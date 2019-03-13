@@ -5,7 +5,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 group = 'com.github.deckyfx'
 version = versionName
 
-def groupName = group
+def groupName   = group
 def artifactName = 'preferencesmanager'
 
 android {
@@ -36,11 +36,6 @@ android {
         }
     }
 }
-
-// Automatic versioning
-//ext.INCREASE_VERSION_NAME_WHEN_RUN_TASK = ""
-//ext.INCREASE_VERSION_CODE_WHEN_RUN_TASK = ""
-//apply from: 'https://raw.githubusercontent.com/deckyfx/AndroidTemplate/master/automatic-versioning.gradle'
 
 configurations {
     doc {
